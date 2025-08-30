@@ -2,7 +2,6 @@
 
 namespace App\Jobs;
 
-use App\Models\Product;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -15,80 +14,80 @@ class ProcessProductImport implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
-    protected $filePath;
+    protected string $filePath;
+    protected int $chunkSize = 1000; // rows per job
 
-    public function __construct($filePath)
+    public function __construct(string $filePath, int $chunkSize = 1000)
     {
-        $this->filePath = $filePath;
+        $this->filePath  = $filePath;
+        $this->chunkSize = $chunkSize;
     }
 
-    public function handle()
+    public function handle(): void
     {
         if (!Storage::exists($this->filePath)) {
             \Log::error("Import file not found: " . $this->filePath);
             return;
         }
 
-        $fullPath = Storage::path($this->filePath);
+        $fullPath  = Storage::path($this->filePath);
         $extension = pathinfo($fullPath, PATHINFO_EXTENSION);
 
         try {
             if ($extension === 'csv') {
-                $this->processCSV($fullPath);
+                $this->chunkCSV($fullPath);
             } else {
-                $this->processExcel($fullPath);
+                $this->chunkExcel($fullPath);
             }
 
-            // Clean up file after processing
+            // Delete file after dispatching all jobs
             Storage::delete($this->filePath);
 
-        } catch (\Exception $e) {
-            \Log::error("Product import error: " . $e->getMessage());
+        } catch (\Throwable $e) {
+            \Log::error("Product import error: " . $e->getMessage(), [
+                'file' => $this->filePath,
+                'trace' => $e->getTraceAsString(),
+            ]);
         }
     }
 
-    protected function processCSV($filePath)
+    protected function chunkCSV(string $fullPath): void
     {
-        $csv = Reader::createFromPath($filePath, 'r');
+        \Log::info("CSV chunking started for file: " . $this->filePath);
+
+        $csv = Reader::createFromPath($fullPath, 'r');
         $csv->setHeaderOffset(0);
-        $records = $csv->getRecords();
+        $records = iterator_to_array($csv->getRecords());
 
-        $batchSize = 1000;
-        $batch = [];
+        $chunk = [];
+        $processed = 0;
 
-        foreach ($records as $offset => $record) {
-            // Validate required fields
+        foreach ($records as $record) {
             if (empty($record['name']) || empty($record['price']) || empty($record['category'])) {
                 continue;
             }
 
-            $batch[] = [
-                'name' => $record['name'],
-                'description' => $record['description'] ?? null,
-                'price' => (float) $record['price'],
-                'image' => $record['image'] ?? null,
-                'category' => $record['category'],
-                'stock' => (int) ($record['stock'] ?? 0),
-                'created_at' => now(),
-                'updated_at' => now(),
-            ];
+            $chunk[] = $record;
+            $processed++;
 
-            if (count($batch) >= $batchSize) {
-                Product::insert($batch);
-                $batch = [];
+            // Dispatch chunk when size is reached
+            if (count($chunk) === $this->chunkSize) {
+                ImportProductsChunk::dispatch($chunk);
+                $chunk = []; // Reset chunk
             }
         }
 
-        // Insert remaining records
-        if (!empty($batch)) {
-            Product::insert($batch);
+        // Leftover rows
+        if (!empty($chunk)) {
+            ImportProductsChunk::dispatch($chunk);
         }
+
+        \Log::info("CSV chunking completed for file: " . $this->filePath . ". Processed $processed records.");
     }
 
-    protected function processExcel($filePath)
+    protected function chunkExcel(string $fullPath): void
     {
-        // For Excel processing, you would need to install maatwebsite/excel package
-        // This is a placeholder implementation
-        \Log::info("Excel processing would happen here for file: " . $filePath);
+
+        \Log::info("Excel chunking would happen here for file: " . $this->filePath);
     }
 }

@@ -8,6 +8,7 @@
                 <div class="card-header d-flex justify-content-between align-items-center">
                     <h4>Products Management</h4>
                     <div>
+                        <input type="text" placeholder="Search products..." class="form-control" style="width: 300px; display: inline-block;">
                         <a href="{{ route('admin.products.create') }}" class="btn btn-primary">Add Product</a>
                         <a href="{{ route('admin.products.import') }}" class="btn btn-success">Bulk Import</a>
                     </div>
@@ -22,7 +23,7 @@
                         <table class="table table-bordered">
                             <thead>
                                 <tr>
-                                    {{-- <th>ID</th> --}}
+                                    <th>ID</th>
                                     <th>Image</th>
                                     <th>Name</th>
                                     <th>Price</th>
@@ -34,9 +35,16 @@
                             <tbody>
                                 @foreach($products as $product)
                                 <tr>
-                                    {{-- <td>{{ $product->id }}</td> --}}
+                                    <td>{{ $product->id }}</td>
                                     <td>
-                                        <img src="{{ $product->image ?? asset('images/default-product-image.png') }}" alt="{{ $product->name }}" width="50" height="50" class="img-thumbnail">
+                                       <img
+                                            src="{{ $product->image
+                                                ? asset('storage/' . $product->image)
+                                                : asset('images/default-product-image.png') }}"
+                                            alt="{{ $product->name }}"
+                                            width="50"
+                                            height="50"
+                                            class="img-thumbnail">
                                     </td>
                                     <td>{{ $product->name }}</td>
                                     <td>${{ number_format($product->price, 2) }}</td>

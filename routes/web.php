@@ -9,23 +9,20 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImportController;
 
-Auth::routes();
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
 Route::get('/', [HomeController::class, 'index'])->name('home');
-// Route::get('admin/products', function(){
-//     // dd('admin products');
-//     return view('admin.products.index');
-// });
+Route::get('/product/{id}', [HomeController::class, 'show'])->name('product.show');
+Auth::routes();
 
 Route::prefix('admin')->group(function() {
     Route::get('/login', [AdminLoginController::class, 'showLoginForm'])->name('admin.login');
-    Route::post('/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');   
+    Route::post('/login', [AdminLoginController::class, 'login'])->name('admin.login.submit');
     Route::get('/register', [AdminRegisterController::class, 'showRegistrationForm'])->name('admin.register');
     Route::post('/register', [AdminRegisterController::class, 'register'])->name('admin.register.submit');
-    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout'); 
+    Route::post('/logout', [AdminLoginController::class, 'logout'])->name('admin.logout');
 
-    
+
 
 });
 // Protected admin routes
@@ -38,14 +35,9 @@ Route::middleware('auth:admin')->prefix('admin')->group(function() {
     Route::get('products/show/{id}', [ProductController::class, 'show'])->name('admin.products.show');
     Route::get('products/edit/{id}', [ProductController::class, 'edit'])->name('admin.products.edit');
     Route::delete('products/destroy/{id}', [ProductController::class, 'destroy'])->name('admin.products.destroy');
-    Route::get('products/update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
-
-
-
+    Route::put('products/update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::get('products/import', [ProductImportController::class, 'showImportForm'])->name('admin.products.import');
     Route::post('products/import', [ProductImportController::class, 'import'])->name('admin.products.import.process');
-    
-    
 
 });
 

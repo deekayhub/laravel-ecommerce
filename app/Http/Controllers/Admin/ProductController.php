@@ -67,17 +67,18 @@ class ProductController extends Controller
     /**
      * Show the form for editing the specified product.
      */
-    public function edit(Product $product)
+    public function edit(Product $id)
     {
-
+        $product = $id;
         return view('admin.products.edit', compact('product'));
     }
 
     /**
      * Update the specified product in storage.
      */
-    public function update(Request $request, Product $product)
+    public function update(Request $request, Product $id)
     {
+        $product = $id;
         $validated = $request->validate([
             'name' => 'required|string|max:255',
             'description' => 'nullable|string',
@@ -88,12 +89,16 @@ class ProductController extends Controller
         ]);
 
         if ($request->hasFile('image')) {
-            // Delete old image if exists
             if ($product->image) {
                 Storage::disk('public')->delete($product->image);
             }
-            $validated['image'] = $request->file('image')->store('products', 'public');
+            $file = $request->file('image');
+            $filename = time() . '_' . $file->getClientOriginalName();
+            $filename = str_replace(' ', '_', $filename);
+            $path = $file->storeAs('products', $filename, 'public');
+            $validated['image'] = $path;
         }
+        // dd($validated);
 
         $product->update($validated);
 
@@ -109,6 +114,7 @@ class ProductController extends Controller
         $product = $id;
         if ($product->image) {
             Storage::disk('public')->delete($product->image);
+
         }
 
         $product->delete();

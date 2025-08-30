@@ -19,6 +19,11 @@
                         </div>
 
                         <div class="form-group">
+                            <label for="description">Description</label>
+                            <textarea name="description" id="description" class="form-control" rows="3">{{ $product->description }}</textarea>
+                        </div>
+
+                        <div class="form-group">
                             <label for="price">Price</label>
                             <input type="number" name="price" id="price" class="form-control" value="{{ $product->price }}" step="0.01" required>
                         </div>
@@ -33,7 +38,7 @@
                             <input type="number" name="stock" id="stock" class="form-control" value="{{ $product->stock }}" required>
                         </div>
 
-                        <div class="form-group">
+                        <div class="form-group mb-3">
                             <label for="image">Image</label>
                             <input type="file" name="image" id="image" class="form-control">
                         </div>

@@ -63,9 +63,10 @@ class ProcessProductImport implements ShouldQueue
         $processed = 0;
 
         foreach ($records as $record) {
-            if (empty($record['name']) || empty($record['price']) || empty($record['category'])) {
+            if (empty($record['sku']) || empty($record['name']) || empty($record['price']) || empty($record['category'])) {
                 continue;
             }
+
 
             $chunk[] = $record;
             $processed++;

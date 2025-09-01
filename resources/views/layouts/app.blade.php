@@ -10,7 +10,14 @@
 
     <link rel="dns-prefetch" href="//fonts.bunny.net">
     <link href="https://fonts.bunny.net/css?family=Nunito" rel="stylesheet">
-
+    <script>
+        // window.Echo.channel('orders')
+        // .listen('.order.created', (e) => {
+        //     console.log('New Order:', e.order);
+        //     alert('New order placed: ' + e.order.id);
+        // });
+        
+    </script>
     @vite(['resources/sass/app.scss', 'resources/js/app.js'])
 </head>
 <body>
@@ -24,7 +31,7 @@
                     <span class="navbar-toggler-icon"></span>
                 </button>
 
-                
+
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav me-auto">
                         @auth('admin')
@@ -34,9 +41,21 @@
                             <li class="nav-item">
                                 <a class="nav-link {{ request()->routeIs('admin.products.index') ? 'active' : '' }}" href="{{ route('admin.products.index') }}">Products</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('admin.orders') ? 'active' : '' }}" href="{{ route('admin.orders') }}">Orders</a>
+                            </li>
+                        @endauth
+                        @auth('web')
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('home') ? 'active' : '' }}" href="{{ route('home') }}">Home</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link {{ request()->routeIs('myorders') ? 'active' : '' }}" href="{{ route('myorders') }}">My Orders</a>
+                            </li>
+
                         @endauth
 
-                        
+
                     </ul>
 
                     <ul class="navbar-nav ms-auto">
@@ -48,7 +67,7 @@
                                 <a class="nav-link" href="{{ route('admin.login') }}">Admin Login</a>
                             </li>
                         @endif
-                        
+
                         @auth('admin')
                             <li class="nav-item dropdown">
                                 <a id="navbarDropdown" class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown">
@@ -71,6 +90,7 @@
                                     {{ Auth::guard('web')->user()->name }}
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-end">
+                                    <a class="dropdown-item" href="{{ route('myorders')}}">My orders</a>
                                     <a class="dropdown-item" href="">Profile</a>
                                     <a class="dropdown-item" href="{{ route('logout') }}"
                                     onclick="event.preventDefault(); document.getElementById('customer-logout-form').submit();">

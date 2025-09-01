@@ -26,20 +26,28 @@ class ImportProductsChunk implements ShouldQueue
 
         foreach ($this->rows as $record) {
             $insertData[] = [
-                'name'        => $record['name'],
-                'description' => $record['description'] ?? null,
-                'price'       => (float) $record['price'],
-                'image'       => $record['image'] ?? null,
-                'category'    => $record['category'],
-                'stock'       => (int)($record['stock'] ?? 0),
-                'created_at'  => now(),
-                'updated_at'  => now(),
+                'sku'        => $record['sku'] ?? null,
+                'name'       => $record['name'],
+                'description'=> $record['description'] ?? null,
+                'price'      => (float) $record['price'],
+                'image'      => $record['image'] ?? null, // store URL first
+                'category'   => $record['category'],
+                'stock'      => (int)($record['stock'] ?? 0),
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
         }
 
         if (!empty($insertData)) {
             Product::insert($insertData);
+
             \Log::info("Inserted chunk of " . count($insertData) . " products.");
+
+            foreach ($insertData as $data) {
+                if (!empty($data['image'])) {
+                    DownloadProductImage::dispatch($data['sku'], $data['image']);
+                }
+            }
         }
     }
 }

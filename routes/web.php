@@ -8,6 +8,8 @@ use App\Http\Controllers\HomeController;
 use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Admin\ProductController;
 use App\Http\Controllers\Admin\ProductImportController;
+use App\Http\Controllers\Admin\OrderController as AdminOrderController;
+use App\Http\Controllers\OrderController;
 
 
 Route::get('/home', [HomeController::class, 'index'])->name('home');
@@ -38,9 +40,11 @@ Route::middleware('auth:admin')->prefix('admin')->group(function() {
     Route::put('products/update/{id}', [ProductController::class, 'update'])->name('admin.products.update');
     Route::get('products/import', [ProductImportController::class, 'showImportForm'])->name('admin.products.import');
     Route::post('products/import', [ProductImportController::class, 'import'])->name('admin.products.import.process');
+    Route::get('orders', [AdminOrderController::class, 'index'])->name('admin.orders');
+    Route::put('orders-status-update/{id}', [AdminOrderController::class, 'updateStatus'])->name('admin.orders.update.status');
 
 });
+Route::get('my-orders/', [OrderController::class, 'myorders'])->name('myorders');
+Route::get('place-order/{id}', [OrderController::class, 'index'])->name('place.order');
+Route::put('place-order/{id}', [OrderController::class, 'placeOrder'])->name('place.order.submit');
 
-Route::middleware(['auth:admin'])->prefix('admin')->group(function() {
-
-});

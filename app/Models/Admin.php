@@ -12,7 +12,7 @@
         protected $guard = 'admin';
 
         protected $fillable = [
-            'name', 'email', 'password',
+            'name', 'email', 'password', 'last_seen_at',
         ];
 
         protected $hidden = [

@@ -39,12 +39,15 @@
                                     <td>
                                        <img
                                             src="{{ $product->image
-                                                ? asset('storage/' . $product->image)
+                                                ? (filter_var($product->image, FILTER_VALIDATE_URL)
+                                                    ? $product->image
+                                                    : asset('storage/' . $product->image))
                                                 : asset('images/default-product-image.png') }}"
                                             alt="{{ $product->name }}"
                                             width="50"
                                             height="50"
                                             class="img-thumbnail">
+
                                     </td>
                                     <td>{{ $product->name }}</td>
                                     <td>${{ number_format($product->price, 2) }}</td>

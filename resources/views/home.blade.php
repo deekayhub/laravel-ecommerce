@@ -2,6 +2,16 @@
 
 @section('content')
 <div class="container">
+    @if (session('success'))
+        <div class="alert alert-success">
+            {{ session('success') }}
+        </div>
+    @endif
+    @if (session('error'))
+        <div class="alert alert-danger">
+            {{ session('error') }}
+        </div>
+    @endif
     <div class="row">
         <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="mb-0">Products</h1>
@@ -21,7 +31,7 @@
                 <div class="col-md-3 mb-3">
                     <a class="product-link text-decoration-none" href="{{ route('product.show', $product->id) }}">
                         <div class="card">
-                            <img src="{{ $product->image ? asset('storage/' . $product->image) : asset('images/default-product-image.png') }}" class="card-img-top" alt="{{ $product->name }}">
+                            <img src="{{ $product->image ? (filter_var($product->image, FILTER_VALIDATE_URL) ? $product->image : asset('storage/' . $product->image)) : asset('images/default-product-image.png') }}" class="card-img-top" alt="{{ $product->name }}">
                             <div class="card-body">
                                 <span class="badge rounded-pill text-bg-primary mb-2">{{ $product->category }}</span>
                                 <h5 class="card-title">{{ $product->name }}</h5>
